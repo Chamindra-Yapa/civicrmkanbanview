@@ -1,0 +1,75 @@
+<style>
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+	top :-30px;
+	left :-50px;
+
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+}
+</style>
+
+<div class="crm-container" >
+  <h1>CiviCase: Kanban View  </h1>
+  
+  <form name="KanbanViewForm" crm-ui-id-scope>
+	<div style="width:1210px; border:2px solid #000;padding:5px;"><!-- filter by search Entity wizard -->
+		<input crm-entityref="{entity: 'Case', select: {allowClear:true}}" ng-model="caseStatusList.filterbyStatus"  style="padding:2px;"/>
+	</div>	
+
+	<table style="border:1px;padding:5px;">
+		<tr style="padding:5px;"><!--Header row of the table shows case status ids in each column -->
+		    <th style="width:200px;text-align:center;border:2px solid #000;padding:5px;" ng-repeat="(key,value) in caseStatusList.values | filter :  {value : caseStatusList.filterbyStatus}" >{{ts('Case Status ID ' + key)}}
+			</th>
+		</tr>
+		<tr class="caseKanbanView"><!-- Detail row which shows the cases based on status_id under the respective columns -->
+			<td style="width:240px;height:400px; border:2px solid #000;" ng-repeat="(key,value) in caseStatusList.values | filter :  {value : caseStatusList.filterbyStatus}"><!-- uses the dnd-list directive to show the cases in their respective columns-->
+				<ul  dnd-list="caseStatusList.values" ng-value="key" style="list-style-type:none;width:225px;padding:5px;">
+				<!-- The list item for each draggable case view  under the relevant status id column-->
+					<li ng-repeat="caseObj in casesList | filter : {status_id : key} "
+						dnd-draggable="caseObj"
+						dnd-moved="casesList.splice($index, 1)"
+						dnd-type="case"
+						>
+						<dnd-nodrag><!-- Makes the case view the handle to drag using crm-case-view custom directive-->
+						  <div dnd-handle class="handle" crm-case-view="caseObj"></div>
+						</dnd-nodrag>
+					</li>
+					<!--The list item to show the place holder for the moved case view -->
+					<li class="dndPlaceholder" >
+							Drop any <strong>case</strong> here
+					</li>
+
+				</ul>
+			</td>
+		</tr>
+		
+		<tr><!-- Footer row which shows the number of cases under the respective columns -->
+			<td ng-repeat="casecount in caseStatusCount"style="width:200px;text-align:center;border:2px solid #000;padding:5px;">
+				No of Cases :<!-- link which shows the number of cases for each status   -->
+				<a href="?q=civicrm/case/search&_qf_Search_display=true&qfKey=">
+					<div class="tooltip">{{casecount.count}}<!-- shows the tool tip -->
+						<span class="tooltiptext">Total Expectation</span>
+					</div>
+				</a>
+			</td>
+		</tr>
+	</table>
+  </form>
+</div>
